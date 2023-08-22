@@ -1,6 +1,6 @@
 pragma solidity ^0.8.10;
 
-interface WarToken {
+interface IWarToken {
     event Approval(address indexed owner, address indexed spender, uint256 amount);
     event NewPendingOwner(address indexed previousPendingOwner, address indexed newPendingOwner);
     event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole);
