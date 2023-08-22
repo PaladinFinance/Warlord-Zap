@@ -1,6 +1,6 @@
 pragma solidity ^0.8.10;
 
-interface WarStaker {
+interface IWarStaker {
     event AddedRewardDepositor(address indexed depositor);
     event Approval(address indexed owner, address indexed spender, uint256 value);
     event ClaimedRewards(address indexed reward, address indexed user, address indexed receiver, uint256 amount);
