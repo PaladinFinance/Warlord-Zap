@@ -13,10 +13,13 @@ contract Zapper is Uniswap, Curve, Balancer {
     mapping(address => bool) public allowedTokens;
     mapping(address => uint256) public fees;
 
+    address public aura = 0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF;
+    address public cvx = 0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B;
+
     constructor(ISwapRouter uniRouter) Uniswap(uniRouter) {}
 
     function enableToken(address token, uint256 fee) external {
-        if (token != address(0)) revert("Zero Address");
+        if (token == address(0)) revert("Zero Address");
         if (fee != 100 && fee != 500 && fee != 3000 && fee != 10_000) revert("Invalid fee");
 
         allowedTokens[token] = true;
@@ -35,21 +38,26 @@ contract Zapper is Uniswap, Curve, Balancer {
         if (amount == 0) revert("Zero value");
         if (!allowedTokens[token]) revert("Token is not allowed");
 
-        ERC20(token).safeTransferFrom(msg.sender, address(this), amount);
-
         if (token != WETH) {
             // TODO handle slippage
-            _etherize(token, amount, 0);
+            amount = _etherize(token, amount, 0);
+        } else {
+            ERC20(token).safeTransferFrom(msg.sender, address(this), amount);
         }
+
         if (ratio == 0) {
-            _ethToAura(amount);
+            _wethToAura(amount, 0);
         } else if (ratio == 10_000) {
-            _ethToCvx(amount);
+            _wethToCvx(amount, 0);
         } else {
             // TODO compute ratio
             //
             // ethToAura(amount * ratio)
             // ethToCvx(1 - (amount * ratio))
         }
+        // uint256 auraAmount = ERC20(aura).balanceOf(address(this));
+        // uint256 cvxAmount = ERC20(cvx).balanceOf(address(this));
+
+        // TODO add zap logic
     }
 }
