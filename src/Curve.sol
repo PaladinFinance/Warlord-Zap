@@ -7,5 +7,5 @@ abstract contract Curve {
 
     using SafeTransferLib for ERC20;
 
-    function _ethToCvx(uint256 amount) internal {}
+    function _wethToCvx(uint256 amount, uint256 cvxOutMin) internal {
 }
