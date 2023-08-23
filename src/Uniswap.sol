@@ -5,7 +5,7 @@ import {ISwapRouter} from "uniswap/ISwapRouter.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 
-contract Uniswap {
+abstract contract Uniswap {
     using SafeTransferLib for ERC20;
 
     address internal constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
