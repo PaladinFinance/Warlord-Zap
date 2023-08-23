@@ -5,9 +5,7 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 
 contract Curve {
-  using SafeTransferLib for ERC20;
+    using SafeTransferLib for ERC20;
 
-  function _ethToCvx(uint256 amount) internal {
-
-  }
+    function _ethToCvx(uint256 amount) internal {}
 }
