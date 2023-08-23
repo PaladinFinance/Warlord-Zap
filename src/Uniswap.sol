@@ -25,10 +25,7 @@ contract Uniswap {
     // TODO should the swap router have a setter?
     // TODO make setter for fee
 
-    function _etherize(address token, uint256 amountIn, uint256 etherOutMin)
-        internal 
-        returns (uint256 amountOut)
-    {
+    function _etherize(address token, uint256 amountIn, uint256 etherOutMin) internal returns (uint256 amountOut) {
         // Pull the specified amount to this contract.
         ERC20(token).safeTransferFrom(msg.sender, address(this), amountIn);
 
