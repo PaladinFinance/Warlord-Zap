@@ -7,5 +7,5 @@ import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 abstract contract Balancer {
     using SafeTransferLib for ERC20;
 
-    function _ethToAura(uint256 amount) internal {}
+    function _wethToAura(uint256 amount, uint256 auraOutMin) internal {}
 }
