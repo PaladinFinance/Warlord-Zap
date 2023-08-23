@@ -1,5 +1,7 @@
 ds-test/=lib/forge-std/lib/ds-test/src/
 forge-std/=lib/forge-std/src/
+solmate/=lib/solmate/src/
 warlord/=int/warlord/
 uniswap/=int/uniswap/
-solmate/=lib/solmate/src/
+curve/=int/curve/
+balancer/=int/balancer/
