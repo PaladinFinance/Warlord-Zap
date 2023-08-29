@@ -26,9 +26,6 @@ abstract contract Uniswap {
     // TODO make setter for fee
 
     function _etherize(address token, uint256 amountIn, uint256 ethOutMin) internal returns (uint256 amountOut) {
-        // Pull the specified amount to this contract.
-        ERC20(token).safeTransferFrom(msg.sender, address(this), amountIn);
-
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
             tokenIn: token, // The input token address
             tokenOut: WETH, // The token received should be Wrapped Ether
