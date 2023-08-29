@@ -6,8 +6,9 @@ import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 import {Uniswap, ISwapRouter} from "src/Uniswap.sol";
 import {Balancer} from "src/Balancer.sol";
 import {Curve} from "src/Curve.sol";
+import {Test, console2} from "forge-std/Test.sol";
 
-contract Zapper is Uniswap, Curve, Balancer {
+contract Zapper is Uniswap, Curve, Balancer, Test {
     using SafeTransferLib for ERC20;
 
     mapping(address => bool) public allowedTokens;
@@ -20,29 +21,32 @@ contract Zapper is Uniswap, Curve, Balancer {
 
     function enableToken(address token, uint256 fee) external {
         if (token == address(0)) revert("Zero Address");
+        // TODO refactor this with mappings for gas and flexibility
         if (fee != 100 && fee != 500 && fee != 3000 && fee != 10_000) revert("Invalid fee");
 
         allowedTokens[token] = true;
         fees[token] = fee;
 
-        _approveSwapper(token);
+        _resetUniswapAllowance(token);
     }
 
     function disableToken(address token) external {
         allowedTokens[token] = false;
+
+        _removeUniswapAllowance(token);
     }
 
-    function swapAndZap(address token, uint256 amount, address receiver, uint256 ratio) public {
+    function swapAndZap(address token, uint256 amount, address receiver, uint256 ratio) public returns (uint256) {
         if (token == address(0)) revert("Zero address");
         if (receiver == address(0)) revert("Zero address");
         if (amount == 0) revert("Zero value");
         if (!allowedTokens[token]) revert("Token is not allowed");
 
+        ERC20(token).safeTransferFrom(msg.sender, address(this), amount);
+
         if (token != WETH) {
             // TODO handle slippage
             amount = _etherize(token, amount, 0);
-        } else {
-            ERC20(token).safeTransferFrom(msg.sender, address(this), amount);
         }
 
         if (ratio == 0) {
@@ -50,6 +54,7 @@ contract Zapper is Uniswap, Curve, Balancer {
         } else if (ratio == 10_000) {
             _wethToCvx(amount, 0);
         } else {
+            revert("Mixed ratio not implemented yet");
             // TODO compute ratio
             //
             // ethToAura(amount * ratio)
@@ -59,5 +64,8 @@ contract Zapper is Uniswap, Curve, Balancer {
         // uint256 cvxAmount = ERC20(cvx).balanceOf(address(this));
 
         // TODO add zap logic
+
+        // TODO should return the amount of staked war
+        return 0;
     }
 }
