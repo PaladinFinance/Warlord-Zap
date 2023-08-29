@@ -4,24 +4,31 @@ pragma solidity 0.8.20;
 import {ISwapRouter} from "uniswap/ISwapRouter.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
+import {EtherUtils} from "src/EtherUtils.sol";
 
-abstract contract Uniswap {
+abstract contract Uniswap is EtherUtils {
     using SafeTransferLib for ERC20;
 
-    address internal constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-
-    ISwapRouter public immutable swapRouter;
+    ISwapRouter private swapRouter;
     uint24 public constant poolFee = 500;
 
     constructor(ISwapRouter _swapRouter) {
         swapRouter = _swapRouter;
     }
 
-    function _approveSwapper(address token) internal {
+    function setRouter(address _router) external {
+      swapRouter = ISwapRouter(_router);
+    }
+
+    function _resetUniswapAllowance(address token) internal {
         ERC20(token).safeApprove(address(swapRouter), type(uint256).max);
     }
 
-    // TODO add function to reset approval in case of hacks
+    function _removeUniswapAllowance(address token) internal {
+        ERC20(token).safeApprove(address(swapRouter), 0);
+      // TODO in case of hacks, might be even worth it to make it disable all the whitelisted tokens automatically
+    }
+
     // TODO should the swap router have a setter?
     // TODO make setter for fee
 
