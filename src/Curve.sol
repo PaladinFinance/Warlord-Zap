@@ -11,12 +11,16 @@ abstract contract Curve is EtherUtils {
 
     address private wethCvxPool = 0xB576491F1E6e5E62f1d8F26062Ee822B40B0E0d4;
 
+    function setCurvePool(address _wethCvxPool) external {
+        wethCvxPool = _wethCvxPool;
+    }
+
     function resetCurveAllowance() external {
-      _resetWethAllowance(wethCvxPool);
+        _resetWethAllowance(wethCvxPool);
     }
 
     function removeCurveAllowance() external {
-      _removeWethAllowance(wethCvxPool);
+        _removeWethAllowance(wethCvxPool);
     }
 
     function _wethToCvx(uint256 amount, uint256 cvxOutMin) internal {
