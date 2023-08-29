@@ -16,8 +16,8 @@ abstract contract Uniswap is EtherUtils {
         swapRouter = _swapRouter;
     }
 
-    function setRouter(address _router) external {
-      swapRouter = ISwapRouter(_router);
+    function setRouter(address _swapRouter) external {
+        swapRouter = ISwapRouter(_swapRouter);
     }
 
     function _resetUniswapAllowance(address token) internal {
@@ -26,7 +26,7 @@ abstract contract Uniswap is EtherUtils {
 
     function _removeUniswapAllowance(address token) internal {
         ERC20(token).safeApprove(address(swapRouter), 0);
-      // TODO in case of hacks, might be even worth it to make it disable all the whitelisted tokens automatically
+        // TODO in case of hacks, might be even worth it to make it disable all the whitelisted tokens automatically
     }
 
     // TODO should the swap router have a setter?
