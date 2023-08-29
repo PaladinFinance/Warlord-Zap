@@ -30,7 +30,7 @@ abstract contract Uniswap {
             tokenIn: token, // The input token address
             tokenOut: WETH, // The token received should be Wrapped Ether
             fee: poolFee, // The fee tier of the pool
-            recipient: msg.sender, // Receiver of the swapped tokens
+            recipient: address(this), // Receiver of the swapped tokens
             deadline: block.timestamp, // Swap has to be terminated at block time
             amountIn: amountIn, // The exact amount to swap
             amountOutMinimum: ethOutMin, // Quote is given by frontend to ensure slippage is minimised
