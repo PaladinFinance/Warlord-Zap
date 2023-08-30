@@ -3,7 +3,6 @@ pragma solidity 0.8.20;
 
 import "./MainnetTest.sol";
 import {Zapper} from "src/Zapper.sol";
-import {ICurvePool} from "curve/ICurvePool.sol";
 
 contract E2E is MainnetTest {
     Zapper zapper;
