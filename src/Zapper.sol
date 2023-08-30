@@ -16,9 +16,7 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     mapping(address => bool) public allowedTokens;
     mapping(address => uint256) public fees;
 
-    address public aura = 0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF;
-    address public cvx = 0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B;
-    address public war = 0xa8258deE2a677874a48F5320670A869D74f0cbC1;
+    address public constant WAR = 0xa8258deE2a677874a48F5320670A869D74f0cbC1;
 
     address warMinter = 0x144a689A8261F1863c89954930ecae46Bd950341;
     address warStaker = 0xA86c53AF3aadF20bE5d7a8136ACfdbC4B074758A;

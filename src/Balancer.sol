@@ -9,7 +9,7 @@ import {EtherUtils} from "src/EtherUtils.sol";
 abstract contract Balancer is EtherUtils {
     using SafeTransferLib for ERC20;
 
-    address private constant AURA = 0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF;
+    address internal constant AURA = 0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF;
 
     address vault = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
 
