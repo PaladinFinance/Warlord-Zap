@@ -43,6 +43,6 @@ abstract contract Balancer is EtherUtils {
             toInternalBalance: false // Don't LP with swapped funds
         });
 
-        IVault(vault).swap(params, funds, auraOutMin, type(uint256).max);
+        IVault(vault).swap(params, funds, auraOutMin, block.timestamp);
     }
 }
