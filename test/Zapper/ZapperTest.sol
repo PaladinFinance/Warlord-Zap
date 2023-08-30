@@ -10,6 +10,8 @@ contract ZapperTest is MainnetTest {
 
     event Zapped(address indexed token, uint256 amount, uint256 mintedAmount);
     event TokenUpdated(address indexed token, bool allowed, uint256 fee);
+    event SetWarMinter(address newMinter);
+    event SetWarStaker(address newStaker);
 
     function setUp() public virtual override {
         MainnetTest.setUp();
