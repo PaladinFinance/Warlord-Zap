@@ -26,9 +26,6 @@ abstract contract Uniswap is EtherUtils {
         // TODO in case of hacks, might be even worth it to make it disable all the whitelisted tokens automatically
     }
 
-    // TODO should the swap router have a setter?
-    // TODO make setter for fee
-
     function _etherize(address token, uint256 amountIn, uint256 ethOutMin, uint24 fee)
         internal
         returns (uint256 amountOut)
