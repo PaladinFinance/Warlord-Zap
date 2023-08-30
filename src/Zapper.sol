@@ -104,10 +104,14 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     /                Zap Functions               /
     ////////////////////////////////////////////*/
 
-    function zapThroughSingleToken(address token, uint256 amount, address receiver, bool useCvx)
-        external
-        returns (uint256 stakedAmount)
-    {
+    function zapSingleToken(
+        address token,
+        uint256 amount,
+        address receiver,
+        bool useCvx,
+        uint256 minEthOut,
+        uint256 minVlTokenOut
+    ) external returns (uint256 stakedAmount) {
         if (token == address(0)) revert Errors.ZeroAddress();
         if (!allowedTokens[token]) revert Errors.TokenNotAllowed();
         if (receiver == address(0)) revert Errors.ZeroAddress();
@@ -116,16 +120,15 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
         ERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
         if (token != WETH) {
-            // TODO handle slippage
-            amount = _etherize(token, amount, 0, fees[token]);
+            amount = _etherize(token, amount, minEthOut, fees[token]);
         }
 
         if (useCvx) {
-            _wethToCvx(amount, 0);
+            _wethToCvx(amount, minVlTokenOut);
             uint256 cvxAmount = ERC20(CVX).balanceOf(address(this));
             IWarMinter(warMinter).mint(CVX, cvxAmount);
         } else {
-            _wethToAura(amount, 0);
+            _wethToAura(amount, minVlTokenOut);
             uint256 auraAmount = ERC20(AURA).balanceOf(address(this));
             IWarMinter(warMinter).mint(AURA, auraAmount);
         }
@@ -136,10 +139,15 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
         emit Zapped(token, amount, stakedAmount);
     }
 
-    function zapThroughMultipleTokens(address token, uint256 amount, address receiver, uint256 ratio)
-        external
-        returns (uint256 stakedAmount)
-    {
+    function zapMultipleTokens(
+        address token,
+        uint256 amount,
+        address receiver,
+        uint256 ratio,
+        uint256 minEthOut,
+        uint256 minAuraOut,
+        uint256 minCvxOut
+    ) external returns (uint256 stakedAmount) {
         if (token == address(0)) revert Errors.ZeroAddress();
         if (receiver == address(0)) revert Errors.ZeroAddress();
         if (amount == 0) revert Errors.NullAmount();
@@ -149,8 +157,7 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
         ERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
         if (token != WETH) {
-            // TODO handle slippage
-            amount = _etherize(token, amount, 0, fees[token]);
+            amount = _etherize(token, amount, minEthOut, fees[token]);
         }
 
         // Aura amount
@@ -158,8 +165,8 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
         // Cvx amount
         uint256 cvxAmount = amount - auraAmount;
 
-        _wethToAura(auraAmount, 0);
-        _wethToCvx(cvxAmount, 0);
+        _wethToAura(auraAmount, minAuraOut);
+        _wethToCvx(cvxAmount, minCvxOut);
 
         address[] memory vlTokens = new address[](2);
         vlTokens[0] = AURA;
