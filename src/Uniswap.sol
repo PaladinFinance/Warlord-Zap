@@ -28,11 +28,14 @@ abstract contract Uniswap is EtherUtils {
     // TODO should the swap router have a setter?
     // TODO make setter for fee
 
-    function _etherize(address token, uint256 amountIn, uint256 ethOutMin) internal returns (uint256 amountOut) {
+    function _etherize(address token, uint256 amountIn, uint256 ethOutMin, uint24 fee)
+        internal
+        returns (uint256 amountOut)
+    {
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
             tokenIn: token, // The input token address
             tokenOut: WETH, // The token received should be Wrapped Ether
-            fee: poolFee, // The fee tier of the pool
+            fee: fee, // The fee tier of the pool
             recipient: address(this), // Receiver of the swapped tokens
             deadline: block.timestamp, // Swap has to be terminated at block time
             amountIn: amountIn, // The exact amount to swap
