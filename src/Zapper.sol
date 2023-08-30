@@ -39,6 +39,14 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     }
 
     function disableToken(address token) external {
+    function setFee(address token, uint24 fee) external onlyOwner {
+        // Not checking the fee tier correctness for simplicity
+        // because new ones might be added by uniswap governance.
+        if (!allowedTokens[token]) revert("Token is not allowed");
+
+        fees[token] = fee;
+    }
+
         allowedTokens[token] = false;
 
         _removeUniswapAllowance(token);
