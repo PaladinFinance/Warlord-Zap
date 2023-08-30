@@ -33,16 +33,16 @@ contract E2E is MainnetTest {
 
     function test_completeZapOnlyAura() public {
         vm.prank(alice);
-        zapper.zapThroughSingleToken(address(usdc), 1000e6, alice, false);
+        zapper.zapSingleToken(address(usdc), 1000e6, alice, false, 0, 0);
     }
 
     function test_completeZapOnlyCvx() public {
         vm.prank(alice);
-        zapper.zapThroughSingleToken(address(usdc), 1000e6, alice, true);
+        zapper.zapSingleToken(address(usdc), 1000e6, alice, true, 0, 0);
     }
 
     function test_compeleteZapBoth() public {
         vm.prank(alice);
-        zapper.zapThroughMultipleTokens(address(usdc), 1000e6, alice, 5000);
+        zapper.zapMultipleTokens(address(usdc), 1000e6, alice, 5000, 0, 0, 0);
     }
 }
