@@ -13,10 +13,19 @@ abstract contract Balancer is EtherUtils {
     address internal constant AURA = 0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF;
 
     address private vault = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
+    bytes32 private poolId = 0xcfca23ca9ca720b6e98e3eb9b6aa0ffc4a5c08b9000200000000000000000274;
+    event SetBalancerPoolId(bytes32 newPoolId);
 
     function setBalancerVault(address _vault) external onlyOwner {
         if (_vault == address(0)) revert Errors.ZeroAddress();
         vault = _vault;
+    }
+
+    function setBalancerPoolId(bytes32 _poolId) external onlyOwner {
+        if (_poolId.length == 0) revert("Empty data");
+        poolId = _poolId;
+
+        emit SetBalancerPoolId(_poolId);
     }
 
     function resetBalancerAllowance() external onlyOwner {
@@ -29,7 +38,7 @@ abstract contract Balancer is EtherUtils {
 
     function _wethToAura(uint256 amount, uint256 auraOutMin) internal {
         IVault.SingleSwap memory params = IVault.SingleSwap({
-            poolId: 0xcfca23ca9ca720b6e98e3eb9b6aa0ffc4a5c08b9000200000000000000000274, // 50/50 WETH/AURA
+            poolId: poolId,
             kind: 0, // exact input, output given
             assetIn: WETH,
             assetOut: AURA,
