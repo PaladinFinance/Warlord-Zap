@@ -23,6 +23,7 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     address public warStaker = 0xA86c53AF3aadF20bE5d7a8136ACfdbC4B074758A;
 
     event Zapped(address indexed token, uint256 amount, uint256 mintedAmount);
+    event TokenUpdated(address indexed token, bool allowed, uint256 fee);
 
     /*////////////////////////////////////////////
     /              Tokens Management             /
@@ -37,6 +38,8 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
         fees[token] = fee;
 
         _resetUniswapAllowance(token);
+
+        emit TokenUpdated(token, true, fee);
     }
 
     function setFee(address token, uint24 fee) external onlyOwner {
@@ -45,12 +48,16 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
         if (!allowedTokens[token]) revert Errors.TokenNotAllowed();
 
         fees[token] = fee;
+
+        emit TokenUpdated(token, true, fee);
     }
 
     function disableToken(address token) external onlyOwner {
         allowedTokens[token] = false;
 
         _removeUniswapAllowance(token);
+
+        emit TokenUpdated(token, false, fees[token]);
     }
 
     /*////////////////////////////////////////////
