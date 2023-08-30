@@ -13,16 +13,16 @@ abstract contract Balancer is EtherUtils {
 
     address private vault = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
 
-    function setBalancerVault(address _vault) external {
+    function setBalancerVault(address _vault) external onlyOwner {
         if (_vault == address(0)) revert("Zero Address");
         vault = _vault;
     }
 
-    function resetBalancerAllowance() external {
+    function resetBalancerAllowance() external onlyOwner {
         _resetWethAllowance(vault);
     }
 
-    function removeBalancerAllowance() external {
+    function removeBalancerAllowance() external onlyOwner {
         _removeWethAllowance(vault);
     }
 
