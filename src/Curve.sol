@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.20;
 
+import {Errors} from "src/Errors.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 import {ICurvePool} from "curve/ICurvePool.sol";
@@ -14,7 +15,7 @@ abstract contract Curve is EtherUtils {
     address private wethCvxPool = 0xB576491F1E6e5E62f1d8F26062Ee822B40B0E0d4;
 
     function setCurvePool(address _wethCvxPool) external onlyOwner {
-        if (_wethCvxPool == address(0)) revert("Zero Address");
+        if (_wethCvxPool == address(0)) revert Errors.ZeroAddress();
         wethCvxPool = _wethCvxPool;
     }
 

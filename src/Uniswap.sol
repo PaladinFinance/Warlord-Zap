@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.20;
 
+import {Errors} from "src/Errors.sol";
 import {ISwapRouter} from "uniswap/ISwapRouter.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
@@ -13,7 +14,7 @@ abstract contract Uniswap is EtherUtils {
     uint24 public constant poolFee = 500;
 
     function setRouter(address _swapRouter) external onlyOwner {
-        if (_swapRouter == address(0)) revert("Zero Address");
+        if (_swapRouter == address(0)) revert Errors.ZeroAddress();
         swapRouter = ISwapRouter(_swapRouter);
     }
 
