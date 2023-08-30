@@ -11,7 +11,12 @@ abstract contract Balancer is EtherUtils {
 
     address internal constant AURA = 0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF;
 
-    address vault = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
+    address private vault = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
+
+    function setBalancerVault(address _vault) external {
+        if (_vault == address(0)) revert("Zero Address");
+        vault = _vault;
+    }
 
     function resetBalancerAllowance() external {
         _resetWethAllowance(vault);
