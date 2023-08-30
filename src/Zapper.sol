@@ -33,6 +33,7 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
         // Not checking the fee tier correctness for simplicity
         // because new ones might be added by uniswap governance.
         if (token == address(0)) revert Errors.ZeroAddress();
+        if (allowedTokens[token]) revert Errors.TokenAlreadyAllowed();
 
         allowedTokens[token] = true;
         fees[token] = fee;
@@ -45,6 +46,7 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     function setFee(address token, uint24 fee) external onlyOwner {
         // Not checking the fee tier correctness for simplicity
         // because new ones might be added by uniswap governance.
+        if (token == address(0)) revert Errors.ZeroAddress();
         if (!allowedTokens[token]) revert Errors.TokenNotAllowed();
 
         fees[token] = fee;
@@ -53,6 +55,8 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     }
 
     function disableToken(address token) external onlyOwner {
+        if (token == address(0)) revert Errors.ZeroAddress();
+
         allowedTokens[token] = false;
 
         _removeUniswapAllowance(token);
