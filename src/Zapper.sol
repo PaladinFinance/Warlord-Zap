@@ -24,6 +24,8 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
 
     event Zapped(address indexed token, uint256 amount, uint256 mintedAmount);
     event TokenUpdated(address indexed token, bool allowed, uint256 fee);
+    event SetWarMinter(address newMinter);
+    event SetWarStaker(address newStaker);
 
     /*////////////////////////////////////////////
     /              Tokens Management             /
@@ -87,11 +89,15 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     function setWarMinter(address _warMinter) external onlyOwner {
         if (_warMinter == address(0)) revert Errors.ZeroAddress();
         warMinter = _warMinter;
+
+        emit SetWarMinter(_warMinter);
     }
 
     function setWarStaker(address _warStaker) external onlyOwner {
         if (_warStaker == address(0)) revert Errors.ZeroAddress();
         warStaker = _warStaker;
+
+        emit SetWarStaker(_warStaker);
     }
 
     /*////////////////////////////////////////////
