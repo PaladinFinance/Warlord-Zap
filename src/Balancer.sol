@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.20;
 
+import {Errors} from "src/Errors.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 import {IVault} from "balancer/IVault.sol";
@@ -14,7 +15,7 @@ abstract contract Balancer is EtherUtils {
     address private vault = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
 
     function setBalancerVault(address _vault) external onlyOwner {
-        if (_vault == address(0)) revert("Zero Address");
+        if (_vault == address(0)) revert Errors.ZeroAddress();
         vault = _vault;
     }
 

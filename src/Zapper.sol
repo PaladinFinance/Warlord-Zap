@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.20;
 
+import {Errors} from "src/Errors.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 import {Uniswap, ISwapRouter} from "src/Uniswap.sol";
@@ -30,7 +31,7 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     function enableToken(address token, uint24 fee) external onlyOwner {
         // Not checking the fee tier correctness for simplicity
         // because new ones might be added by uniswap governance.
-        if (token == address(0)) revert("Zero Address");
+        if (token == address(0)) revert Errors.ZeroAddress();
 
         allowedTokens[token] = true;
         fees[token] = fee;
@@ -41,7 +42,7 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     function setFee(address token, uint24 fee) external onlyOwner {
         // Not checking the fee tier correctness for simplicity
         // because new ones might be added by uniswap governance.
-        if (!allowedTokens[token]) revert("Token is not allowed");
+        if (!allowedTokens[token]) revert Errors.TokenNotAllowed();
 
         fees[token] = fee;
     }
@@ -73,12 +74,12 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     ////////////////////////////////////////////*/
 
     function setWarMinter(address _warMinter) external onlyOwner {
-        if (_warMinter == address(0)) revert("Zero address");
+        if (_warMinter == address(0)) revert Errors.ZeroAddress();
         warMinter = _warMinter;
     }
 
     function setWarStaker(address _warStaker) external onlyOwner {
-        if (_warStaker == address(0)) revert("Zero address");
+        if (_warStaker == address(0)) revert Errors.ZeroAddress();
         warStaker = _warStaker;
     }
 
@@ -90,10 +91,10 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
         external
         returns (uint256 stakedAmount)
     {
-        if (token == address(0)) revert("Zero address");
-        if (!allowedTokens[token]) revert("Token is not allowed");
-        if (receiver == address(0)) revert("Zero address");
-        if (amount == 0) revert("Zero value");
+        if (token == address(0)) revert Errors.ZeroAddress();
+        if (!allowedTokens[token]) revert Errors.TokenNotAllowed();
+        if (receiver == address(0)) revert Errors.ZeroAddress();
+        if (amount == 0) revert Errors.NullAmount();
 
         ERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
@@ -122,11 +123,11 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
         external
         returns (uint256 stakedAmount)
     {
-        if (token == address(0)) revert("Zero address");
-        if (receiver == address(0)) revert("Zero address");
-        if (amount == 0) revert("Zero value");
-        if (!allowedTokens[token]) revert("Token is not allowed");
-        if (ratio == 0 || ratio > 9999) revert("Invalid ratio");
+        if (token == address(0)) revert Errors.ZeroAddress();
+        if (receiver == address(0)) revert Errors.ZeroAddress();
+        if (amount == 0) revert Errors.NullAmount();
+        if (!allowedTokens[token]) revert Errors.TokenNotAllowed();
+        if (ratio == 0 || ratio > 9999) revert Errors.InvalidRatio();
 
         ERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
