@@ -27,7 +27,7 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     /            Tokens Whitelisting             /
     ////////////////////////////////////////////*/
 
-    function enableToken(address token, uint24 fee) external {
+    function enableToken(address token, uint24 fee) external onlyOwner {
         // Not checking the fee tier correctness for simplicity
         // because new ones might be added by uniswap governance.
         if (token == address(0)) revert("Zero Address");
@@ -48,13 +48,13 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     /              Allowance methods             /
     ////////////////////////////////////////////*/
 
-    function resetWarlordAllowances() external {
+    function resetWarlordAllowances() external onlyOwner {
         ERC20(AURA).safeApprove(warMinter, type(uint256).max);
         ERC20(CVX).safeApprove(warMinter, type(uint256).max);
         ERC20(WAR).safeApprove(warStaker, type(uint256).max);
     }
 
-    function removeWarlordAllowances() external {
+    function removeWarlordAllowances() external onlyOwner{
         ERC20(AURA).safeApprove(warMinter, 0);
         ERC20(CVX).safeApprove(warMinter, 0);
         ERC20(WAR).safeApprove(warStaker, 0);
@@ -64,12 +64,12 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     /              Warlord setters               /
     ////////////////////////////////////////////*/
 
-    function setWarMinter(address _warMinter) external {
+    function setWarMinter(address _warMinter) external onlyOwner {
         if (_warMinter == address(0)) revert("Zero address");
         warMinter = _warMinter;
     }
 
-    function setWarStaker(address _warStaker) external {
+    function setWarStaker(address _warStaker) external onlyOwner {
         if (_warStaker == address(0)) revert("Zero address");
         warStaker = _warStaker;
     }
