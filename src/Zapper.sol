@@ -14,7 +14,7 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     using SafeTransferLib for ERC20;
 
     mapping(address => bool) public allowedTokens;
-    mapping(address => uint256) public fees;
+    mapping(address => uint24) public fees;
 
     address public constant WAR = 0xa8258deE2a677874a48F5320670A869D74f0cbC1;
 
@@ -23,11 +23,14 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
 
     event Zapped(address indexed token, uint256 amount, uint256 mintedAmount);
 
+    /*////////////////////////////////////////////
+    /            Tokens Whitelisting             /
+    ////////////////////////////////////////////*/
 
-    function enableToken(address token, uint256 fee) external {
+    function enableToken(address token, uint24 fee) external {
+        // Not checking the fee tier correctness for simplicity
+        // because new ones might be added by uniswap governance.
         if (token == address(0)) revert("Zero Address");
-        // TODO refactor this with mappings for gas and flexibility
-        if (fee != 100 && fee != 500 && fee != 3000 && fee != 10_000) revert("Invalid fee");
 
         allowedTokens[token] = true;
         fees[token] = fee;
@@ -41,17 +44,44 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
         _removeUniswapAllowance(token);
     }
 
+    /*////////////////////////////////////////////
+    /              Allowance methods             /
+    ////////////////////////////////////////////*/
+
     function resetWarlordAllowances() external {
-        ERC20(aura).safeApprove(warMinter, type(uint256).max);
-        ERC20(war).safeApprove(warStaker, type(uint256).max);
+        ERC20(AURA).safeApprove(warMinter, type(uint256).max);
+        ERC20(CVX).safeApprove(warMinter, type(uint256).max);
+        ERC20(WAR).safeApprove(warStaker, type(uint256).max);
     }
 
     function removeWarlordAllowances() external {
-        ERC20(aura).safeApprove(warMinter, 0);
-        ERC20(war).safeApprove(warStaker, 0);
+        ERC20(AURA).safeApprove(warMinter, 0);
+        ERC20(CVX).safeApprove(warMinter, 0);
+        ERC20(WAR).safeApprove(warStaker, 0);
     }
 
-    function swapAndZap(address token, uint256 amount, address receiver, uint256 ratio) public returns (uint256) {
+    /*////////////////////////////////////////////
+    /              Warlord setters               /
+    ////////////////////////////////////////////*/
+
+    function setWarMinter(address _warMinter) external {
+        if (_warMinter == address(0)) revert("Zero address");
+        warMinter = _warMinter;
+    }
+
+    function setWarStaker(address _warStaker) external {
+        if (_warStaker == address(0)) revert("Zero address");
+        warStaker = _warStaker;
+    }
+
+    /*////////////////////////////////////////////
+    /                Zap Functions               /
+    ////////////////////////////////////////////*/
+
+    function zapThroughSingleToken(address token, uint256 amount, address receiver, bool useCvx)
+        external
+        returns (uint256 stakedAmount)
+    {
         if (token == address(0)) revert("Zero address");
         if (receiver == address(0)) revert("Zero address");
         if (amount == 0) revert("Zero value");
@@ -61,60 +91,62 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
 
         if (token != WETH) {
             // TODO handle slippage
-            amount = _etherize(token, amount, 0);
+            amount = _etherize(token, amount, 0, fees[token]);
         }
 
-        if (ratio == 0) {
-            _wethToAura(amount, 0);
-        } else if (ratio == 10_000) {
+        if (useCvx) {
             _wethToCvx(amount, 0);
+            uint256 cvxAmount = ERC20(CVX).balanceOf(address(this));
+            IWarMinter(warMinter).mint(CVX, cvxAmount);
         } else {
-            revert("Mixed ratio not implemented yet");
-            // TODO compute ratio
-            //
-            // ethToAura(amount * ratio)
-            // ethToCvx(1 - (amount * ratio))
+            _wethToAura(amount, 0);
+            uint256 auraAmount = ERC20(AURA).balanceOf(address(this));
+            IWarMinter(warMinter).mint(AURA, auraAmount);
         }
-        // uint256 auraAmount = ERC20(aura).balanceOf(address(this));
-        // uint256 cvxAmount = ERC20(cvx).balanceOf(address(this));
 
-        // TODO add zap logic
+        uint256 warAmount = ERC20(WAR).balanceOf(address(this));
+        stakedAmount = IWarStaker(warStaker).stake(warAmount, receiver);
 
-        // TODO should return the amount of staked war
-        return 0;
+        emit Zapped(token, amount, stakedAmount);
     }
 
-    function _mintAndStake(address token, uint256 amount) internal {}
-
-    function zapThroughSingleToken(address token, uint256 amount, address receiver, bool useCvx)
+    function zapThroughMultipleTokens(address token, uint256 amount, address receiver, uint256 ratio)
         external
-        returns (uint256)
+        returns (uint256 stakedAmount)
     {
         if (token == address(0)) revert("Zero address");
         if (receiver == address(0)) revert("Zero address");
         if (amount == 0) revert("Zero value");
+        if (!allowedTokens[token]) revert("Token is not allowed");
+        if (ratio == 0 || ratio > 9999) revert("Invalid ratio");
 
         ERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
         if (token != WETH) {
             // TODO handle slippage
-            amount = _etherize(token, amount, 0);
+            amount = _etherize(token, amount, 0, fees[token]);
         }
 
-        if (useCvx) {
-            _wethToCvx(amount, 0);
-            uint256 cvxAmount = ERC20(cvx).balanceOf(address(this));
-            IWarMinter(warMinter).mint(cvx, cvxAmount);
-        } else {
-            _wethToAura(amount, 0);
-            uint256 auraAmount = ERC20(aura).balanceOf(address(this));
-            IWarMinter(warMinter).mint(aura, auraAmount);
-        }
+        // Aura amount
+        uint256 auraAmount = amount * ratio / 10_000;
+        // Cvx amount
+        uint256 cvxAmount = amount - auraAmount;
 
-        uint256 warAmount = ERC20(war).balanceOf(address(this));
-        uint256 stakedAmount = IWarStaker(warStaker).stake(warAmount, receiver);
+        _wethToAura(auraAmount, 0);
+        _wethToCvx(cvxAmount, 0);
+
+        address[] memory vlTokens = new address[](2);
+        vlTokens[0] = AURA;
+        vlTokens[1] = CVX;
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = ERC20(AURA).balanceOf(address(this));
+        amounts[1] = ERC20(CVX).balanceOf(address(this));
+
+        IWarMinter(warMinter).mintMultiple(vlTokens, amounts);
+
+        uint256 warAmount = ERC20(WAR).balanceOf(address(this));
+        stakedAmount = IWarStaker(warStaker).stake(warAmount, receiver);
 
         emit Zapped(token, amount, stakedAmount);
-        return stakedAmount;
     }
 }
