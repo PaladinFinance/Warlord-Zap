@@ -14,11 +14,15 @@ abstract contract Balancer is EtherUtils {
 
     address private vault = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
     bytes32 private poolId = 0xcfca23ca9ca720b6e98e3eb9b6aa0ffc4a5c08b9000200000000000000000274;
+
+    event SetBalancerVault(address newVault);
     event SetBalancerPoolId(bytes32 newPoolId);
 
     function setBalancerVault(address _vault) external onlyOwner {
         if (_vault == address(0)) revert Errors.ZeroAddress();
         vault = _vault;
+
+        emit SetBalancerVault(_vault);
     }
 
     function setBalancerPoolId(bytes32 _poolId) external onlyOwner {
