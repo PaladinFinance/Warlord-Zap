@@ -65,7 +65,7 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     }
 
     /*////////////////////////////////////////////
-    /              Allowance methods             /
+    /          Warlord allowance methods         /
     ////////////////////////////////////////////*/
 
     function resetWarlordAllowances() external onlyOwner {
