@@ -18,8 +18,8 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
 
     address public constant WAR = 0xa8258deE2a677874a48F5320670A869D74f0cbC1;
 
-    address warMinter = 0x144a689A8261F1863c89954930ecae46Bd950341;
-    address warStaker = 0xA86c53AF3aadF20bE5d7a8136ACfdbC4B074758A;
+    address public warMinter = 0x144a689A8261F1863c89954930ecae46Bd950341;
+    address public warStaker = 0xA86c53AF3aadF20bE5d7a8136ACfdbC4B074758A;
 
     event Zapped(address indexed token, uint256 amount, uint256 mintedAmount);
 
