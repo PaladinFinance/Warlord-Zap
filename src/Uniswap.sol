@@ -9,12 +9,8 @@ import {EtherUtils} from "src/EtherUtils.sol";
 abstract contract Uniswap is EtherUtils {
     using SafeTransferLib for ERC20;
 
-    ISwapRouter private swapRouter;
+    ISwapRouter private swapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     uint24 public constant poolFee = 500;
-
-    constructor(ISwapRouter _swapRouter) {
-        swapRouter = _swapRouter;
-    }
 
     function setRouter(address _swapRouter) external {
         swapRouter = ISwapRouter(_swapRouter);

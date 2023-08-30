@@ -23,7 +23,6 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
 
     event Zapped(address indexed token, uint256 amount, uint256 mintedAmount);
 
-    constructor(ISwapRouter uniRouter) Uniswap(uniRouter) {}
 
     function enableToken(address token, uint256 fee) external {
         if (token == address(0)) revert("Zero Address");
