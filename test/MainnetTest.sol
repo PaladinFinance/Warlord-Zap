@@ -6,9 +6,7 @@ import {IWarStaker} from "warlord/IWarStaker.sol";
 import {ISwapRouter} from "uniswap/ISwapRouter.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
-import {Balancer} from "src/Balancer.sol";
-// import {Curve} from "src/Curve.sol";
-// import {Uniswap} from "src/Uniswap.sol";
+import {Errors} from "src/Errors.sol";
 
 contract MainnetTest is Test {
     using SafeTransferLib for ERC20;
@@ -21,13 +19,16 @@ contract MainnetTest is Test {
     IWarStaker public constant stkWar = IWarStaker(0xA86c53AF3aadF20bE5d7a8136ACfdbC4B074758A);
     ISwapRouter public constant uniRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
+    uint256 blockNumber = 18026454;
+
     function fork() public returns (uint256) {
-        return vm.createSelectFork(vm.rpcUrl("ethereum"), 18026454);
+        if (blockNumber == 0) {
+            return vm.createSelectFork(vm.rpcUrl("ethereum"));
+        }
+        return vm.createSelectFork(vm.rpcUrl("ethereum"), blockNumber);
     }
 
     function setUp() public virtual {
-        fork();
-
         vm.label(address(war), "WAR");
         vm.label(address(stkWar), "stkWAR");
         vm.label(address(weth), "WETH");
@@ -36,15 +37,18 @@ contract MainnetTest is Test {
         vm.label(address(cvx), "CVX");
         vm.label(address(aura), "AURA");
 
-        // WarZap zap = 0xf747744518099F44936D6D58041De6cD199C35aF;
-        // WarMinter minter = 0x144a689A8261F1863c89954930ecae46Bd950341;
+        fork();
     }
 }
 
-contract BalancerMock is Balancer {
-    function wethToAura(uint256 amount, uint256 auraOutMin) external {
-        _wethToAura(amount, auraOutMin);
-    }
+contract MockERC20 is ERC20 {
+    constructor() ERC20("MockERC20", "MERC20", 18) {}
 }
+
+// contract BalancerMock is Balancer {
+// function wethToAura(uint256 amount, uint256 auraOutMin) external {
+// _wethToAura(amount, auraOutMin);
+// }
+// }
 // contract UniswapMock is Uniswap {}
 // contract CurveMock is Curve {}
