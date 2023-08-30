@@ -24,7 +24,7 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     event Zapped(address indexed token, uint256 amount, uint256 mintedAmount);
 
     /*////////////////////////////////////////////
-    /            Tokens Whitelisting             /
+    /              Tokens Management             /
     ////////////////////////////////////////////*/
 
     function enableToken(address token, uint24 fee) external onlyOwner {
@@ -54,7 +54,7 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
         ERC20(WAR).safeApprove(warStaker, type(uint256).max);
     }
 
-    function removeWarlordAllowances() external onlyOwner{
+    function removeWarlordAllowances() external onlyOwner {
         ERC20(AURA).safeApprove(warMinter, 0);
         ERC20(CVX).safeApprove(warMinter, 0);
         ERC20(WAR).safeApprove(warStaker, 0);
@@ -83,9 +83,9 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
         returns (uint256 stakedAmount)
     {
         if (token == address(0)) revert("Zero address");
+        if (!allowedTokens[token]) revert("Token is not allowed");
         if (receiver == address(0)) revert("Zero address");
         if (amount == 0) revert("Zero value");
-        if (!allowedTokens[token]) revert("Token is not allowed");
 
         ERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
