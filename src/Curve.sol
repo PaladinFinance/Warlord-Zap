@@ -14,6 +14,7 @@ abstract contract Curve is EtherUtils {
     address private wethCvxPool = 0xB576491F1E6e5E62f1d8F26062Ee822B40B0E0d4;
 
     function setCurvePool(address _wethCvxPool) external {
+        if (_wethCvxPool == address(0)) revert("Zero Address");
         wethCvxPool = _wethCvxPool;
     }
 
