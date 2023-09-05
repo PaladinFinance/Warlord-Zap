@@ -11,7 +11,6 @@ abstract contract Uniswap is EtherUtils {
     using SafeTransferLib for ERC20;
 
     ISwapRouter private swapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
-    uint24 public constant poolFee = 500;
 
     event SetUniswapRouter(address newRouter);
 
@@ -28,7 +27,6 @@ abstract contract Uniswap is EtherUtils {
 
     function _removeUniswapAllowance(address token) internal {
         ERC20(token).safeApprove(address(swapRouter), 0);
-        // TODO in case of hacks, might be even worth it to make it disable all the whitelisted tokens automatically
     }
 
     function _etherize(address token, uint256 amountIn, uint256 ethOutMin, uint24 fee)
