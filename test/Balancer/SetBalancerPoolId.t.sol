@@ -7,6 +7,9 @@ contract SetBalancerPoolId is BalancerTest {
     function test_defaultBehavior(bytes32 newPoolId) public {
         vm.assume(newPoolId != "");
 
+        vm.expectEmit();
+        emit SetBalancerPoolId(newPoolId);
+
         vm.prank(admin);
         balancer.setBalancerPoolId(newPoolId);
 

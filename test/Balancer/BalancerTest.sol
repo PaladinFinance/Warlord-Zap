@@ -10,6 +10,9 @@ contract BalancerTest is MainnetTest {
     BalancerMock balancer;
     address admin;
 
+    event SetBalancerVault(address newVault);
+    event SetBalancerPoolId(bytes32 newPoolId);
+
     function setUp() public override {
         MainnetTest.setUp();
         admin = makeAddr("admin");
