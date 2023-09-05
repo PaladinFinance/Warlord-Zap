@@ -5,6 +5,8 @@ import "./ZapperTest.sol";
 
 contract SetWarMinter is ZapperTest {
     function test_defaultBehavior(address newWarMinter) public {
+        vm.assume(newWarMinter != address(0));
+
         vm.expectEmit();
         emit SetWarMinter(newWarMinter);
 
