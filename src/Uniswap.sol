@@ -13,9 +13,13 @@ abstract contract Uniswap is EtherUtils {
     ISwapRouter private swapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     uint24 public constant poolFee = 500;
 
+    event SetUniswapRouter(address newRouter);
+
     function setRouter(address _swapRouter) external onlyOwner {
         if (_swapRouter == address(0)) revert Errors.ZeroAddress();
         swapRouter = ISwapRouter(_swapRouter);
+
+        emit SetUniswapRouter(_swapRouter);
     }
 
     function _resetUniswapAllowance(address token) internal {
