@@ -20,4 +20,11 @@ contract SetBalancerVault is BalancerTest {
         vm.expectRevert("Ownable: caller is not the owner");
         balancer.setBalancerVault(newVault);
     }
+
+    function test_zeroAddress() public {
+        vm.expectRevert(Errors.ZeroAddress.selector);
+
+        vm.prank(admin);
+        balancer.setBalancerVault(address(0));
+    }
 }
