@@ -12,8 +12,8 @@ abstract contract Balancer is EtherUtils {
 
     address internal constant AURA = 0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF;
 
-    address private vault = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
-    bytes32 private poolId = 0xcfca23ca9ca720b6e98e3eb9b6aa0ffc4a5c08b9000200000000000000000274;
+    address public vault = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
+    bytes32 public poolId = 0xcfca23ca9ca720b6e98e3eb9b6aa0ffc4a5c08b9000200000000000000000274;
 
     event SetBalancerVault(address newVault);
     event SetBalancerPoolId(bytes32 newPoolId);
