@@ -10,9 +10,9 @@ import {EtherUtils} from "src/EtherUtils.sol";
 abstract contract Curve is EtherUtils {
     using SafeTransferLib for ERC20;
 
-    address public CVX = 0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B;
+    address internal constant CVX = 0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B;
 
-    address private wethCvxPool = 0xB576491F1E6e5E62f1d8F26062Ee822B40B0E0d4;
+    address public wethCvxPool = 0xB576491F1E6e5E62f1d8F26062Ee822B40B0E0d4;
 
     event SetCurvePool(address newPool);
 
