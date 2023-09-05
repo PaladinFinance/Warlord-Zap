@@ -26,7 +26,6 @@ abstract contract Balancer is EtherUtils {
     }
 
     function setBalancerPoolId(bytes32 _poolId) external onlyOwner {
-        if (_poolId.length == 0) revert("Empty data");
         poolId = _poolId;
 
         emit SetBalancerPoolId(_poolId);
