@@ -7,6 +7,9 @@ contract SetBalancerVault is BalancerTest {
     function test_defaultBehavior(address newVault) public {
         vm.assume(newVault != address(0));
 
+        vm.expectEmit();
+        emit SetBalancerVault(newVault);
+
         vm.prank(admin);
         balancer.setBalancerVault(newVault);
 
