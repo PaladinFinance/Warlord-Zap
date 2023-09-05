@@ -22,7 +22,7 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
     address public warMinter = 0x144a689A8261F1863c89954930ecae46Bd950341;
     address public warStaker = 0xA86c53AF3aadF20bE5d7a8136ACfdbC4B074758A;
 
-    event Zapped(address indexed token, uint256 amount, uint256 mintedAmount);
+    event Zapped(address indexed token, uint256 amount, uint256 mintedAmount, address receiver);
     event TokenUpdated(address indexed token, bool allowed, uint256 fee);
     event SetWarMinter(address newMinter);
     event SetWarStaker(address newStaker);
@@ -136,7 +136,7 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
         uint256 warAmount = ERC20(WAR).balanceOf(address(this));
         stakedAmount = IWarStaker(warStaker).stake(warAmount, receiver);
 
-        emit Zapped(token, amount, stakedAmount);
+        emit Zapped(token, amount, stakedAmount, receiver);
     }
 
     function zapMultipleTokens(
@@ -180,6 +180,6 @@ contract Zapper is Uniswap, Curve, Balancer, Test {
         uint256 warAmount = ERC20(WAR).balanceOf(address(this));
         stakedAmount = IWarStaker(warStaker).stake(warAmount, receiver);
 
-        emit Zapped(token, amount, stakedAmount);
+        emit Zapped(token, amount, stakedAmount, receiver);
     }
 }
