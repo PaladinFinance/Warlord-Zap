@@ -12,7 +12,7 @@ contract UniswapTest is MainnetTest {
 
     event SetUniswapRouter(address newRouter);
 
-    function setUp() public override {
+    function setUp() public virtual override {
         MainnetTest.setUp();
         admin = makeAddr("admin");
         vm.prank(admin);
