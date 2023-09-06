@@ -9,9 +9,8 @@ import {Balancer} from "src/Balancer.sol";
 import {Curve} from "src/Curve.sol";
 import {IWarMinter} from "warlord/IWarMinter.sol";
 import {IWarStaker} from "warlord/IWarStaker.sol";
-import {Test, console2} from "forge-std/Test.sol";
 
-contract Zapper is Uniswap, Curve, Balancer, Test {
+contract Zapper is Uniswap, Curve, Balancer {
     using SafeTransferLib for ERC20;
 
     mapping(address => bool) public allowedTokens;
