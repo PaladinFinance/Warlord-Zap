@@ -5,6 +5,8 @@ import "./ZapperTest.sol";
 
 contract SetWarStaker is ZapperTest {
     function test_defaultBehavior(address newWarStaker) public {
+        vm.assume(newWarStaker != address(0));
+
         vm.expectEmit();
         emit SetWarStaker(newWarStaker);
 
