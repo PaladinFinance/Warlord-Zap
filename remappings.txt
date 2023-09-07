@@ -1,5 +1,6 @@
 ds-test/=lib/forge-std/lib/ds-test/src/
 forge-std/=lib/forge-std/src/
+surl/=lib/surl/src/
 solmate/=lib/solmate/src/
 oz/=lib/openzeppelin-contracts/contracts/
 warlord/=int/warlord/
