@@ -21,7 +21,13 @@ contract UniswapTest is MainnetTest {
 }
 
 contract UniswapMock is Uniswap {
+    using SafeTransferLib for ERC20;
+
     function etherize(address token, uint256 amountIn, uint256 ethOutMin, uint24 fee) external {
         _etherize(token, amountIn, ethOutMin, fee);
+    }
+
+    function resetUniswapAllowance(address token) external {
+        ERC20(token).safeApprove(address(swapRouter), type(uint256).max);
     }
 }
