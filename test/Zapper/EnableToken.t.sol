@@ -14,13 +14,13 @@ contract EnableToken is ZapperTest {
 
     function test_defaultBehavior(uint24 fee) public {
         vm.expectEmit();
-        emit TokenUpdated(mock, true, fee);
+        emit TokenUpdated(mock, true);
 
         vm.prank(admin);
         zap.enableToken(mock, fee);
 
         assertTrue(zap.allowedTokens(mock), "Token should be enabled");
-        assertEqDecimal(zap.fees(mock), fee, 2, "Fee should be set correctly");
+        assertEqDecimal(zap.uniswapFees(mock), fee, 2, "Fee should be set correctly");
         assertEq(
             ERC20(mock).allowance(address(zap), address(uniRouter)), type(uint256).max, "Allowance should be maxed"
         );
