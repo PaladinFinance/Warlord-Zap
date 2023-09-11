@@ -4,13 +4,13 @@ pragma solidity 0.8.20;
 import {Errors} from "src/Errors.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
-import {Uniswap, ISwapRouter} from "src/Uniswap.sol";
-import {Balancer} from "src/Balancer.sol";
-import {Curve} from "src/Curve.sol";
+import {AUniswap, ISwapRouter} from "src/AUniswap.sol";
+import {ABalancer} from "src/ABalancer.sol";
+import {ACurve} from "src/ACurve.sol";
 import {IWarMinter} from "warlord/IWarMinter.sol";
 import {IWarStaker} from "warlord/IWarStaker.sol";
 
-contract Zapper is Uniswap, Curve, Balancer {
+contract Zapper is AUniswap, ACurve, ABalancer {
     using SafeTransferLib for ERC20;
 
     mapping(address => bool) public allowedTokens;

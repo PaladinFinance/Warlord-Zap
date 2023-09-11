@@ -7,7 +7,7 @@ import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 import {IVault} from "balancer/IVault.sol";
 import {EtherUtils} from "src/EtherUtils.sol";
 
-abstract contract Balancer is EtherUtils {
+abstract contract ABalancer is EtherUtils {
     using SafeTransferLib for ERC20;
 
     address internal constant AURA = 0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF;

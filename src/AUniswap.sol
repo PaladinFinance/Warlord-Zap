@@ -7,7 +7,7 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 import {EtherUtils} from "src/EtherUtils.sol";
 
-abstract contract Uniswap is EtherUtils {
+abstract contract AUniswap is EtherUtils {
     using SafeTransferLib for ERC20;
 
     mapping(address => uint24) public uniswapFees;

@@ -7,7 +7,7 @@ import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 import {ICurvePool} from "curve/ICurvePool.sol";
 import {EtherUtils} from "src/EtherUtils.sol";
 
-abstract contract Curve is EtherUtils {
+abstract contract ACurve is EtherUtils {
     using SafeTransferLib for ERC20;
 
     address internal constant CVX = 0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B;
