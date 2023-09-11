@@ -16,6 +16,7 @@ contract Zapper is Uniswap, Curve, Balancer {
     mapping(address => bool) public allowedTokens;
     mapping(address => uint24) public fees;
 
+    uint256 private constant MAX_BPS = 10_000;
     address public constant WAR = 0xa8258deE2a677874a48F5320670A869D74f0cbC1;
 
     address public warMinter = 0x144a689A8261F1863c89954930ecae46Bd950341;
@@ -160,7 +161,7 @@ contract Zapper is Uniswap, Curve, Balancer {
         }
 
         // Aura amount
-        uint256 auraAmount = amount * ratio / 10_000;
+        uint256 auraAmount = amount * ratio / MAX_BPS;
         // Cvx amount
         uint256 cvxAmount = amount - auraAmount;
 
