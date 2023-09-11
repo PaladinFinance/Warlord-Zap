@@ -10,15 +10,23 @@ import {EtherUtils} from "src/EtherUtils.sol";
 abstract contract Uniswap is EtherUtils {
     using SafeTransferLib for ERC20;
 
+    mapping(address => uint24) public uniswapFees;
     ISwapRouter public swapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
     event SetUniswapRouter(address newRouter);
+    event SetUniswapFee(address indexed token, uint24 fee);
 
     function setUniswapRouter(address _swapRouter) external onlyOwner {
         if (_swapRouter == address(0)) revert Errors.ZeroAddress();
         swapRouter = ISwapRouter(_swapRouter);
 
         emit SetUniswapRouter(_swapRouter);
+    }
+
+    function _setUniswapFee(address token, uint24 fee) internal {
+        uniswapFees[token] = fee;
+
+        emit SetUniswapFee(token, fee);
     }
 
     function _resetUniswapAllowance(address token) internal {
