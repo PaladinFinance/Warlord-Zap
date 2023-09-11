@@ -32,7 +32,7 @@ abstract contract Curve is EtherUtils {
     }
 
     function _wethToCvx(uint256 amount, uint256 cvxOutMin) internal {
-        // Caching to memory
+        // Caching in memory
         address _wethCvxPool = wethCvxPool;
 
         ERC20(WETH).safeApprove(_wethCvxPool, amount);
