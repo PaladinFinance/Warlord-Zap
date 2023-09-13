@@ -10,6 +10,7 @@ import {ABalancer} from "src/ABalancer.sol";
 import {ACurve} from "src/ACurve.sol";
 import {IWarMinter} from "warlord/IWarMinter.sol";
 import {IWarStaker} from "warlord/IWarStaker.sol";
+import {WETH9} from "int/WETH.sol";
 
 contract Zapper is AUniswap, ACurve, ABalancer {
     using SafeTransferLib for ERC20;
@@ -105,7 +106,42 @@ contract Zapper is AUniswap, ACurve, ABalancer {
     /                Zap Functions               /
     ////////////////////////////////////////////*/
 
-    function zapSingleToken(
+    function _zapWethToSingleToken(address receiver, bool useCvx, uint256 amount, uint256 minVlTokenOut)
+        internal
+        returns (uint256)
+    {
+        if (useCvx) {
+            _wethToCvx(amount, minVlTokenOut);
+            uint256 cvxAmount = ERC20(CVX).balanceOf(address(this));
+            IWarMinter(warMinter).mint(CVX, cvxAmount);
+        } else {
+            _wethToAura(amount, minVlTokenOut);
+            uint256 auraAmount = ERC20(AURA).balanceOf(address(this));
+            IWarMinter(warMinter).mint(AURA, auraAmount);
+        }
+
+        uint256 warAmount = ERC20(WAR).balanceOf(address(this));
+        return IWarStaker(warStaker).stake(warAmount, receiver);
+    }
+
+    function zapEtherToSingleToken(address receiver, bool useCvx, uint256 minVlTokenOut)
+        external
+        payable
+        returns (uint256 stakedAmount)
+    {
+        if (receiver == address(0)) revert Errors.ZeroAddress();
+        if (msg.value == 0) revert Errors.NullAmount();
+
+        // Convert native eth to weth
+        WETH9(WETH).deposit{value: msg.value}();
+
+        // Zap weth to vlCvx or vlAura
+        stakedAmount = _zapWethToSingleToken(receiver, useCvx, msg.value, minVlTokenOut);
+
+        emit Zapped(WETH, msg.value, stakedAmount, receiver);
+    }
+
+    function zapERC20ToSingleToken(
         address token,
         uint256 amount,
         address receiver,
@@ -118,52 +154,28 @@ contract Zapper is AUniswap, ACurve, ABalancer {
         if (receiver == address(0)) revert Errors.ZeroAddress();
         if (amount == 0) revert Errors.NullAmount();
 
+        // Pull ether from sender to this contract
         ERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
+        // Ensure that we have WETH to zap
         if (token != WETH) {
             amount = _etherize(token, amount, minEthOut, uniswapFees[token]);
         }
 
-        if (useCvx) {
-            _wethToCvx(amount, minVlTokenOut);
-            uint256 cvxAmount = ERC20(CVX).balanceOf(address(this));
-            IWarMinter(warMinter).mint(CVX, cvxAmount);
-        } else {
-            _wethToAura(amount, minVlTokenOut);
-            uint256 auraAmount = ERC20(AURA).balanceOf(address(this));
-            IWarMinter(warMinter).mint(AURA, auraAmount);
-        }
-
-        uint256 warAmount = ERC20(WAR).balanceOf(address(this));
-        stakedAmount = IWarStaker(warStaker).stake(warAmount, receiver);
+        // Zap weth to vlCvx or vlAura
+        stakedAmount = _zapWethToSingleToken(receiver, useCvx, amount, minVlTokenOut);
 
         emit Zapped(token, amount, stakedAmount, receiver);
     }
 
-    function zapMultipleTokens(
-        address token,
-        uint256 amount,
+    function _zapWethToMultipleTokens(
         address receiver,
+        uint256 amount,
         uint256 ratio,
-        uint256 minEthOut,
         uint256 minAuraOut,
         uint256 minCvxOut
-    ) external returns (uint256 stakedAmount) {
-        if (token == address(0)) revert Errors.ZeroAddress();
-        if (receiver == address(0)) revert Errors.ZeroAddress();
-        if (amount == 0) revert Errors.NullAmount();
-        if (!allowedTokens[token]) revert Errors.TokenNotAllowed();
-        if (ratio == 0 || ratio > 9999) revert Errors.InvalidRatio();
-
-        ERC20(token).safeTransferFrom(msg.sender, address(this), amount);
-
-        if (token != WETH) {
-            amount = _etherize(token, amount, minEthOut, uniswapFees[token]);
-        }
-
-        // Aura amount
+    ) internal returns (uint256) {
         uint256 auraAmount = amount * ratio / MAX_BPS;
-        // Cvx amount
         uint256 cvxAmount = amount - auraAmount;
 
         _wethToAura(auraAmount, minAuraOut);
@@ -179,7 +191,52 @@ contract Zapper is AUniswap, ACurve, ABalancer {
         IWarMinter(warMinter).mintMultiple(vlTokens, amounts);
 
         uint256 warAmount = ERC20(WAR).balanceOf(address(this));
-        stakedAmount = IWarStaker(warStaker).stake(warAmount, receiver);
+        return IWarStaker(warStaker).stake(warAmount, receiver);
+    }
+
+    function zapEtherToMultipleTokens(address receiver, uint256 ratio, uint256 minAuraOut, uint256 minCvxOut)
+        external
+        payable
+        returns (uint256 stakedAmount)
+    {
+        if (receiver == address(0)) revert Errors.ZeroAddress();
+        if (ratio == 0 || ratio > 9999) revert Errors.InvalidRatio();
+        if (msg.value == 0) revert Errors.NullAmount();
+
+        // Convert native eth to weth
+        WETH9(WETH).deposit{value: msg.value}();
+
+        // Zap weth to vlCvx and vlAura
+        stakedAmount = _zapWethToMultipleTokens(receiver, msg.value, ratio, minAuraOut, minCvxOut);
+
+        emit Zapped(WETH, msg.value, stakedAmount, receiver);
+    }
+
+    function zapERC20ToMultipleTokens(
+        address token,
+        uint256 amount,
+        address receiver,
+        uint256 ratio,
+        uint256 minEthOut,
+        uint256 minAuraOut,
+        uint256 minCvxOut
+    ) external returns (uint256 stakedAmount) {
+        if (token == address(0)) revert Errors.ZeroAddress();
+        if (receiver == address(0)) revert Errors.ZeroAddress();
+        if (amount == 0) revert Errors.NullAmount();
+        if (!allowedTokens[token]) revert Errors.TokenNotAllowed();
+        if (ratio == 0 || ratio > 9999) revert Errors.InvalidRatio();
+
+        // Pull ether from sender to this contract
+        ERC20(token).safeTransferFrom(msg.sender, address(this), amount);
+
+        // Ensure that we have WETH to zap
+        if (token != WETH) {
+            amount = _etherize(token, amount, minEthOut, uniswapFees[token]);
+        }
+
+        // Zap weth to vlCvx and vlAura
+        stakedAmount = _zapWethToMultipleTokens(receiver, amount, ratio, minAuraOut, minCvxOut);
 
         emit Zapped(token, amount, stakedAmount, receiver);
     }
