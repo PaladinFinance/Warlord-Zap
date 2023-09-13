@@ -18,7 +18,7 @@ contract Etherize is UniswapTest, OneInchQuotes {
         deal(token, address(uniswap), amount);
 
         // Fetching the best price from 1inch API
-        uint256 expectedAmount = fetchPrice(address(usdc), address(weth), amount);
+        uint256 expectedAmount = fetchPrice(address(token), address(weth), amount);
         // 1% slippage tollerated
         uint256 slippedExpectedAmount = expectedAmount * (10_000 - slippage_bps) / 10_000;
         uniswap.etherize(token, amount, slippedExpectedAmount, fee);
@@ -30,12 +30,13 @@ contract Etherize is UniswapTest, OneInchQuotes {
 
     function test_stablecoinToEtherSlippage() public {
         uint256 snapshot = vm.snapshot();
+        assertSlippageLessThanOnePercent(address(dai), 3000, 1_000_000e6, 100);
         // Swap up to 1 milion usdc with a 0.05 fee
-        assertSlippageLessThanOnePercent(address(usdc), 500, 1_000_000e6, 100);
         vm.revertTo(snapshot);
-        vm.sleep(10_000);
+        assertSlippageLessThanOnePercent(address(usdc), 500, 1_000_000e6, 100);
         // Swap up to 1 milion usdt with a 0.05 fee
+        vm.revertTo(snapshot);
+        // Swap up to 1 milion dai with a 0.3 fee
         assertSlippageLessThanOnePercent(address(usdt), 500, 1_000_000e6, 100);
-        // Tried this with DAI but results were too inconsistent
     }
 }

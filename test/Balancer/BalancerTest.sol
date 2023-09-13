@@ -13,7 +13,7 @@ contract BalancerTest is MainnetTest {
     event SetBalancerVault(address newVault);
     event SetBalancerPoolId(bytes32 newPoolId);
 
-    function setUp() public override {
+    function setUp() public virtual override {
         MainnetTest.setUp();
         admin = makeAddr("admin");
         vm.prank(admin);
