@@ -31,18 +31,43 @@ contract E2E is MainnetTest {
         deal(address(usdc), alice, 10_000e6);
     }
 
-    function test_completeZapOnlyAura() public {
+    function test_zapOnlyAura() public {
         vm.prank(alice);
-        zapper.zapSingleToken(address(usdc), 1000e6, alice, false, 0, 0);
+        zapper.zapERC20ToSingleToken(address(usdc), 1000e6, alice, false, 0, 0);
     }
 
-    function test_completeZapOnlyCvx() public {
+    function test_zapOnlyCvx() public {
         vm.prank(alice);
-        zapper.zapSingleToken(address(usdc), 1000e6, alice, true, 0, 0);
+        zapper.zapERC20ToSingleToken(address(usdc), 1000e6, alice, true, 0, 0);
     }
 
-    function test_compeleteZapBoth() public {
+    function test_zapBoth() public {
         vm.prank(alice);
-        zapper.zapMultipleTokens(address(usdc), 1000e6, alice, 5000, 0, 0, 0);
+        zapper.zapERC20ToMultipleTokens(address(usdc), 1000e6, alice, 5000, 0, 0, 0);
     }
+
+    function test_zapOnlyAuraNativeEth() public {
+        vm.deal(alice, 1 ether);
+        vm.prank(alice);
+        zapper.zapEtherToSingleToken{value: 1 ether}(alice, false, 0);
+    }
+
+    function test_zapOnlyCvxNativeEth() public {
+        vm.deal(alice, 1 ether);
+        vm.prank(alice);
+        zapper.zapEtherToSingleToken{value: 1 ether}(alice, true, 0);
+    }
+
+    function test_zapBothNativeEth() public {
+        vm.deal(alice, 1 ether);
+        vm.prank(alice);
+        zapper.zapEtherToMultipleTokens{value: 1 ether}(alice, 5000, 0, 0);
+    }
+
+    // function test_zapFromEther() public {
+    // uint256 etherAmount = 50 ether;
+
+    // deal(address(weth), address(zapper), etherAmount);
+    // zapper.zapSingleToken(address(weth));
+    // }
 }
