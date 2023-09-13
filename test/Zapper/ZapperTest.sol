@@ -8,6 +8,9 @@ contract ZapperTest is MainnetTest {
     Zapper zap;
     address admin;
 
+    address alice;
+    address bob;
+
     event Zapped(address indexed token, uint256 amount, uint256 mintedAmount);
     event TokenUpdated(address indexed token, bool allowed);
     event SetWarMinter(address newMinter);
@@ -18,6 +21,8 @@ contract ZapperTest is MainnetTest {
         MainnetTest.setUp();
 
         admin = makeAddr("admin");
+        alice = makeAddr("alice");
+        bob = makeAddr("bob");
         vm.prank(admin);
         zap = new Zapper();
     }
