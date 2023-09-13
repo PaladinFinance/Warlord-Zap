@@ -4,6 +4,7 @@ pragma solidity 0.8.20;
 import {Errors} from "src/Errors.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
+
 import {AUniswap, ISwapRouter} from "src/AUniswap.sol";
 import {ABalancer} from "src/ABalancer.sol";
 import {ACurve} from "src/ACurve.sol";
@@ -16,6 +17,7 @@ contract Zapper is AUniswap, ACurve, ABalancer {
     mapping(address => bool) public allowedTokens;
 
     uint256 private constant MAX_BPS = 10_000;
+
     address public constant WAR = 0xa8258deE2a677874a48F5320670A869D74f0cbC1;
 
     address public warMinter = 0x144a689A8261F1863c89954930ecae46Bd950341;
@@ -51,7 +53,7 @@ contract Zapper is AUniswap, ACurve, ABalancer {
         if (!allowedTokens[token]) revert Errors.TokenNotAllowed();
 
         _setUniswapFee(token, fee);
-
+        // TODO fix this
         emit TokenUpdated(token, true);
     }
 
