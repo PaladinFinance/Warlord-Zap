@@ -17,7 +17,7 @@ contract DisableToken is ZapperTest {
 
     function test_defaultBehavior() public {
         vm.expectEmit();
-        emit TokenUpdated(enabledToken, false, 500);
+        emit TokenUpdated(enabledToken, false);
 
         vm.prank(admin);
         zap.disableToken(enabledToken);

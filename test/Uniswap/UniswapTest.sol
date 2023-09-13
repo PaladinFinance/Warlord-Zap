@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import "test/MainnetTest.sol";
-import {Uniswap} from "src/Uniswap.sol";
+import {AUniswap} from "src/AUniswap.sol";
 
 contract UniswapTest is MainnetTest {
     using SafeTransferLib for ERC20;
@@ -20,7 +20,7 @@ contract UniswapTest is MainnetTest {
     }
 }
 
-contract UniswapMock is Uniswap {
+contract UniswapMock is AUniswap {
     using SafeTransferLib for ERC20;
 
     function etherize(address token, uint256 amountIn, uint256 ethOutMin, uint24 fee) external {

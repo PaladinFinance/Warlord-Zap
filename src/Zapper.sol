@@ -4,17 +4,19 @@ pragma solidity 0.8.20;
 import {Errors} from "src/Errors.sol";
 import {ERC20} from "solmate/tokens/ERC20.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
-import {Uniswap, ISwapRouter} from "src/Uniswap.sol";
-import {Balancer} from "src/Balancer.sol";
-import {Curve} from "src/Curve.sol";
+
+import {AUniswap, ISwapRouter} from "src/AUniswap.sol";
+import {ABalancer} from "src/ABalancer.sol";
+import {ACurve} from "src/ACurve.sol";
 import {IWarMinter} from "warlord/IWarMinter.sol";
 import {IWarStaker} from "warlord/IWarStaker.sol";
 
-contract Zapper is Uniswap, Curve, Balancer {
+contract Zapper is AUniswap, ACurve, ABalancer {
     using SafeTransferLib for ERC20;
 
     mapping(address => bool) public allowedTokens;
-    mapping(address => uint24) public fees;
+
+    uint256 private constant MAX_BPS = 10_000;
 
     address public constant WAR = 0xa8258deE2a677874a48F5320670A869D74f0cbC1;
 
@@ -22,7 +24,7 @@ contract Zapper is Uniswap, Curve, Balancer {
     address public warStaker = 0xA86c53AF3aadF20bE5d7a8136ACfdbC4B074758A;
 
     event Zapped(address indexed token, uint256 amount, uint256 mintedAmount, address receiver);
-    event TokenUpdated(address indexed token, bool allowed, uint256 fee);
+    event TokenUpdated(address indexed token, bool allowed);
     event SetWarMinter(address newMinter);
     event SetWarStaker(address newStaker);
 
@@ -37,22 +39,22 @@ contract Zapper is Uniswap, Curve, Balancer {
         if (allowedTokens[token]) revert Errors.TokenAlreadyAllowed();
 
         allowedTokens[token] = true;
-        fees[token] = fee;
+        _setUniswapFee(token, fee);
 
         _resetUniswapAllowance(token);
 
-        emit TokenUpdated(token, true, fee);
+        emit TokenUpdated(token, true);
     }
 
-    function setFee(address token, uint24 fee) external onlyOwner {
+    function setUniswapFee(address token, uint24 fee) external onlyOwner {
         // Not checking the fee tier correctness for simplicity
         // because new ones might be added by uniswap governance.
         if (token == address(0)) revert Errors.ZeroAddress();
         if (!allowedTokens[token]) revert Errors.TokenNotAllowed();
 
-        fees[token] = fee;
-
-        emit TokenUpdated(token, true, fee);
+        _setUniswapFee(token, fee);
+        // TODO fix this
+        emit TokenUpdated(token, true);
     }
 
     function disableToken(address token) external onlyOwner {
@@ -62,7 +64,7 @@ contract Zapper is Uniswap, Curve, Balancer {
 
         _removeUniswapAllowance(token);
 
-        emit TokenUpdated(token, false, fees[token]);
+        emit TokenUpdated(token, false);
     }
 
     /*////////////////////////////////////////////
@@ -119,7 +121,7 @@ contract Zapper is Uniswap, Curve, Balancer {
         ERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
         if (token != WETH) {
-            amount = _etherize(token, amount, minEthOut, fees[token]);
+            amount = _etherize(token, amount, minEthOut, uniswapFees[token]);
         }
 
         if (useCvx) {
@@ -156,11 +158,11 @@ contract Zapper is Uniswap, Curve, Balancer {
         ERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
         if (token != WETH) {
-            amount = _etherize(token, amount, minEthOut, fees[token]);
+            amount = _etherize(token, amount, minEthOut, uniswapFees[token]);
         }
 
         // Aura amount
-        uint256 auraAmount = amount * ratio / 10_000;
+        uint256 auraAmount = amount * ratio / MAX_BPS;
         // Cvx amount
         uint256 cvxAmount = amount - auraAmount;
 

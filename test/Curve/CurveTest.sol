@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import "test/MainnetTest.sol";
-import {Curve} from "src/Curve.sol";
+import {ACurve} from "src/ACurve.sol";
 
 contract CurveTest is MainnetTest {
     using SafeTransferLib for ERC20;
@@ -20,7 +20,7 @@ contract CurveTest is MainnetTest {
     }
 }
 
-contract CurveMock is Curve {
+contract CurveMock is ACurve {
     function wethToCvx(uint256 amount, uint256 cvxOutMin) external {
         _wethToCvx(amount, cvxOutMin);
     }

@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import "test/MainnetTest.sol";
-import {Balancer} from "src/Balancer.sol";
+import {ABalancer} from "src/ABalancer.sol";
 
 contract BalancerTest is MainnetTest {
     using SafeTransferLib for ERC20;
@@ -21,7 +21,7 @@ contract BalancerTest is MainnetTest {
     }
 }
 
-contract BalancerMock is Balancer {
+contract BalancerMock is ABalancer {
     function wethToAura(uint256 amount, uint256 auraOutMin) external {
         _wethToAura(amount, auraOutMin);
     }
