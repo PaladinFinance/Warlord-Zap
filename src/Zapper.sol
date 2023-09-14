@@ -54,8 +54,6 @@ contract Zapper is AUniswap, ACurve, ABalancer {
         if (!allowedTokens[token]) revert Errors.TokenNotAllowed();
 
         _setUniswapFee(token, fee);
-        // TODO fix this
-        emit TokenUpdated(token, true);
     }
 
     function disableToken(address token) external onlyOwner {
