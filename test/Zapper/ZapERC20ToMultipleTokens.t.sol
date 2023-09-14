@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import "./ZapperTest.sol";
 
-contract ZapERC20ToSingleToken is ZapperTest {
+contract ZapERC20ToMultipleTokens is ZapperTest {
     using SafeTransferLib for ERC20;
 
     function setUp() public override {
@@ -18,13 +18,13 @@ contract ZapERC20ToSingleToken is ZapperTest {
         vm.stopPrank();
     }
 
-    function defaultBehavior(address token, uint256 amount, bool useCvx) public {
+    function defaultBehavior(address token, uint256 amount, uint256 ratio) public {
         deal(token, alice, amount);
 
         vm.startPrank(alice);
         ERC20(token).safeApprove(address(zap), amount);
 
-        zap.zapERC20ToSingleToken(token, amount, bob, useCvx, 0, 0);
+        zap.zapERC20ToMultipleTokens(token, amount, bob, ratio, 0, 0, 0);
         vm.stopPrank();
 
         assertEq(ERC20(token).balanceOf(alice), 0, "Alice shouldn't have any of the zap token left");
@@ -39,25 +39,28 @@ contract ZapERC20ToSingleToken is ZapperTest {
         assertEq(war.balanceOf(address(zap)), 0, "Zapper shouldn't have any unstaked war left");
     }
 
-    function test_defaultBehaviorWeth() public {
-        defaultBehavior(address(weth), 10 ether, false);
-        defaultBehavior(address(weth), 10 ether, true);
+    function test_defaultBehaviorWeth(uint256 ratio) public {
+        ratio = bound(ratio, 1, 9_999);
+        defaultBehavior(address(weth), 10 ether, ratio);
     }
 
-    function test_defaultBehaviorUsdc() public {
-        defaultBehavior(address(usdc), 20_000e6, false);
-        defaultBehavior(address(usdc), 20_000e6, true);
+    function test_defaultBehaviorUsdc(uint256 ratio) public {
+        ratio = bound(ratio, 1, 9_999);
+        defaultBehavior(address(usdc), 20_000e6, ratio);
     }
 
-    function test_tokenZeroAddress(uint256 amount, bool useCvx) public {
+    function test_tokenZeroAddress(uint256 amount, uint256 ratio) public {
         vm.assume(amount != 0);
+        ratio = bound(ratio, 1, 9_999);
+
         vm.expectRevert(Errors.ZeroAddress.selector);
 
-        zap.zapERC20ToSingleToken(address(0), amount, bob, useCvx, 0, 0);
+        zap.zapERC20ToMultipleTokens(address(0), amount, bob, ratio, 0, 0, 0);
     }
 
-    function test_tokenNotAllowed(uint256 amount, bool useCvx) public {
+    function test_tokenNotAllowed(uint256 amount, uint256 ratio) public {
         vm.assume(amount != 0);
+        ratio = bound(ratio, 1, 9_999);
 
         vm.startPrank(admin);
         zap.disableToken(address(usdc));
@@ -65,20 +68,31 @@ contract ZapERC20ToSingleToken is ZapperTest {
         vm.stopPrank();
 
         vm.expectRevert(Errors.TokenNotAllowed.selector);
-        zap.zapERC20ToSingleToken(address(usdc), amount, bob, useCvx, 0, 0);
+        zap.zapERC20ToMultipleTokens(address(usdc), amount, bob, ratio, 0, 0, 0);
         vm.expectRevert(Errors.TokenNotAllowed.selector);
-        zap.zapERC20ToSingleToken(address(weth), amount, bob, useCvx, 0, 0);
+        zap.zapERC20ToMultipleTokens(address(weth), amount, bob, ratio, 0, 0, 0);
     }
 
-    function test_receiverZeroAddress(uint256 amount, bool useCvx) public {
+    function test_receiverZeroAddress(uint256 amount, uint256 ratio) public {
         vm.assume(amount != 0);
+        ratio = bound(ratio, 1, 9_999);
 
         vm.expectRevert(Errors.ZeroAddress.selector);
-        zap.zapERC20ToSingleToken(address(weth), amount, address(0), useCvx, 0, 0);
+        zap.zapERC20ToMultipleTokens(address(weth), amount, address(0), ratio, 0, 0, 0);
     }
 
-    function test_nullAmount(bool useCvx) public {
+    function test_nullAmount(uint256 ratio) public {
+        ratio = bound(ratio, 1, 9_999);
+
         vm.expectRevert(Errors.NullAmount.selector);
-        zap.zapERC20ToSingleToken(address(weth), 0, bob, useCvx, 0, 0);
+        zap.zapERC20ToMultipleTokens(address(weth), 0, bob, ratio, 0, 0, 0);
+    }
+
+    function test_invalidRatio(uint256 invalidRatio, uint256 amount) public {
+        vm.assume(amount != 0);
+        vm.assume(invalidRatio == 0 || invalidRatio > 9_999);
+
+        vm.expectRevert(Errors.InvalidRatio.selector);
+        zap.zapERC20ToMultipleTokens(address(weth), amount, bob, invalidRatio, 0, 0, 0);
     }
 }

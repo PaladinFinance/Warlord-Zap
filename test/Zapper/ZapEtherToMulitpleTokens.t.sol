@@ -16,8 +16,6 @@ contract ZapEtherToMultipleTokens is ZapperTest {
         vm.deal(alice, 1 ether);
     }
 
-    function defaultBehavior(uint256 ratio) public {}
-
     function test_defaultBehavior(uint256 ratio) public {
         ratio = bound(ratio, 1, 9_999);
         vm.deal(alice, 1 ether);
