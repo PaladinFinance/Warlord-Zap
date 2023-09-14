@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import "./ZapperTest.sol";
 
-contract ZapEtherToSingleToken is ZapperTest {
+contract ZapEtherToMultipleTokens is ZapperTest {
     function setUp() public override {
         ZapperTest.setUp();
 
@@ -15,9 +15,15 @@ contract ZapEtherToSingleToken is ZapperTest {
         vm.deal(alice, 1 ether);
     }
 
-    function defaultBehavior(bool useCvx) public {
+    function defaultBehavior(uint256 ratio) public {}
+
+    function test_defaultBehavior(uint256 ratio) public {
+        ratio = bound(ratio, 1, 9_999);
+        vm.deal(alice, 1 ether);
+
         vm.prank(alice);
-        zap.zapEtherToSingleToken{value: 1 ether}(bob, useCvx, 0);
+        zap.zapEtherToMultipleTokens{value: 1 ether}(bob, ratio, 0, 0);
+
         assertGt(stkWar.balanceOf(bob), 0, "Bob should have received stkWar");
         assertEq(stkWar.balanceOf(alice), 0, "Alice shouldn't have received any stkWar");
 
@@ -32,31 +38,24 @@ contract ZapEtherToSingleToken is ZapperTest {
         assertEq(war.balanceOf(address(zap)), 0, "Zapper shouldn't have any unstaked war left");
     }
 
-    function test_defaultBehaviorAura() public {
-        defaultBehavior(false);
-    }
+    function test_zeroAddress(uint256 ratio) public {
+        ratio = bound(ratio, 1, 9_999);
 
-    function test_defaultBehaviorCvx() public {
-        defaultBehavior(true);
-    }
-
-    function test_zeroAddressAura() public {
         vm.expectRevert(Errors.ZeroAddress.selector);
-        zap.zapEtherToSingleToken{value: 1 ether}(address(0), false, 0);
+        zap.zapEtherToMultipleTokens{value: 1 ether}(address(0), ratio, 0, 0);
     }
 
-    function test_zeroAddressCvx() public {
-        vm.expectRevert(Errors.ZeroAddress.selector);
-        zap.zapEtherToSingleToken{value: 1 ether}(address(0), true, 0);
-    }
+    function test_nullAmountAura(uint256 ratio) public {
+        ratio = bound(ratio, 1, 9_999);
 
-    function test_nullAmountAura() public {
         vm.expectRevert(Errors.NullAmount.selector);
-        zap.zapEtherToSingleToken(bob, false, 0);
+        zap.zapEtherToMultipleTokens(bob, ratio, 0, 0);
     }
 
-    function test_nullAmountCvx() public {
-        vm.expectRevert(Errors.NullAmount.selector);
-        zap.zapEtherToSingleToken(bob, true, 0);
+    function test_invalidRatio(uint256 invalidRatio) public {
+        vm.assume(invalidRatio == 0 || invalidRatio > 9_999);
+
+        vm.expectRevert(Errors.InvalidRatio.selector);
+        zap.zapEtherToMultipleTokens{value: 1 ether}(bob, invalidRatio, 0, 0);
     }
 }
