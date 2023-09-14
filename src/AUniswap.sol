@@ -57,19 +57,16 @@ abstract contract AUniswap is EtherUtils {
         ERC20(token).safeApprove(address(swapRouter), 0);
     }
 
-    function _etherize(address token, uint256 amountIn, uint256 ethOutMin, uint24 fee)
     /// @dev Converts a given amount of a token into WETH using Uniswap.
     /// @param token The token to be converted.
     /// @param amountIn The amount of token to be swapped.
     /// @param ethOutMin The minimum amount of WETH expected in return.
     /// @return amountOut The amount of WETH received from the swap.
-        internal
-        returns (uint256 amountOut)
-    {
+    function _etherize(address token, uint256 amountIn, uint256 ethOutMin) internal returns (uint256 amountOut) {
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
             tokenIn: token, // The input token address
             tokenOut: WETH, // The token received should be Wrapped Ether
-            fee: fee, // The fee tier of the pool
+            fee: uniswapFees[token], // The fee tier of the pool
             recipient: address(this), // Receiver of the swapped tokens
             deadline: block.timestamp, // Swap has to be terminated at block time
             amountIn: amountIn, // The exact amount to swap

@@ -216,7 +216,7 @@ contract Zapper is AUniswap, ACurve, ABalancer {
 
         // Ensure that we have WETH to zap
         if (token != WETH) {
-            amount = _etherize(token, amount, minEthOut, uniswapFees[token]);
+            amount = _etherize(token, amount, minEthOut);
         }
 
         // Zap weth to vlCvx or vlAura
@@ -311,7 +311,7 @@ contract Zapper is AUniswap, ACurve, ABalancer {
 
         // Ensure that we have WETH to zap
         if (token != WETH) {
-            amount = _etherize(token, amount, minEthOut, uniswapFees[token]);
+            amount = _etherize(token, amount, minEthOut);
         }
 
         // Zap weth to vlCvx and vlAura
