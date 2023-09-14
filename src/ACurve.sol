@@ -32,10 +32,6 @@ abstract contract ACurve is EtherUtils {
     }
 
     function _wethToCvx(uint256 amount, uint256 cvxOutMin) internal {
-        // Caching in memory
-        address _wethCvxPool = wethCvxPool;
-
-        ERC20(WETH).safeApprove(_wethCvxPool, amount);
-        ICurvePool(_wethCvxPool).exchange(0, 1, amount, cvxOutMin);
+        ICurvePool(wethCvxPool).exchange(0, 1, amount, cvxOutMin);
     }
 }

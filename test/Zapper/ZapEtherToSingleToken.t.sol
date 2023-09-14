@@ -9,6 +9,7 @@ contract ZapEtherToSingleToken is ZapperTest {
 
         vm.startPrank(admin);
         zap.resetBalancerAllowance();
+        zap.resetCurveAllowance();
         zap.resetWarlordAllowances();
         vm.stopPrank();
 
