@@ -15,3 +15,6 @@ docs/
 
 # Coverage reports
 coverage
+
+.vscode/
+flatten/
